@@ -187,6 +187,27 @@ router.patch('/transfer/:origin/:destiny', async (req, res) => {
 // Crie um endpoint para consultar a média do saldo dos clientes de determinada
 // agência. O endpoint deverá receber como parametro a “agência” e deverá retornar
 // o balance médio da conta.
+router.get('/average/:agency/', async (req, res) => {
+  try {
+    const { agency } = req.params;
+
+    const group = {
+      _id: null,
+      avg: { $avg: '$balance' },
+    };
+
+    const avgBalance = await accountModel.aggregate([
+      { $match: { agencia: Number(agency) } },
+      { $group: group },
+    ]);
+
+    res.send({ 'AVG Balance': avgBalance[0].avg });
+
+    //logger.info('GET /account');
+  } catch (err) {
+    res.status(400).send({ error: err.message });
+  }
+});
 
 // Crie um endpoint para consultar os clientes com o menor saldo em conta. O endpoint
 // devera receber como parâmetro um valor numérico para determinar a quantidade de
