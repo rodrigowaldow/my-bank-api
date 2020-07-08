@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
-import accountRouter from './routes/accountRouter.js';
+import accountRouter from './routes/account.js';
 
 (async () => {
   try {

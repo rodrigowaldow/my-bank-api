@@ -38,10 +38,10 @@ router.patch('/deposit/:agency/:account', async (req, res) => {
     });
 
     if (!userAccount) {
-      res.status(500).send({ error: 'Conta não encontrada!' });
+      throw new Error('Account does not exist.');
     }
 
-    res.send({ 'Saldo atual': userAccount.balance });
+    res.send({ 'New balance': userAccount.balance });
 
     //logger.info('GET /account');
   } catch (err) {
@@ -59,16 +59,29 @@ router.patch('/deposit/:agency/:account', async (req, res) => {
 // o saque fique negativo.
 router.patch('/withdraw/:agency/:account', async (req, res) => {
   try {
-    const agency = req.params.agency;
-    const account = req.params.account;
-    const value = req.body;
+    // const agency = req.params.agency;
+    // const account = req.params.account;
+    const { agency, account } = req.params;
+    const value = req.body.value + 1;
 
-    const balance = await accountModel.findOneAndUpdate({});
+    const filter = {
+      $and: [{ agencia: agency }, { conta: account }],
+    };
 
-    const userAccount = new accountModel(req.body);
+    const userAccount = await accountModel.findOne(filter);
+    if (!userAccount) {
+      throw new Error('Account does not exist.');
+    }
+
+    const newBalance = userAccount.balance - value;
+    if (newBalance < 0) {
+      throw new Error('The account has no value enough.');
+    }
+
+    userAccount.balance = newBalance;
     await userAccount.save();
 
-    res.send(balance);
+    res.send({ 'New balance': userAccount.balance });
   } catch (err) {
     res.status(400).send({ error: err.message });
   }
