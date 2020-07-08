@@ -35,7 +35,6 @@ router.patch('/deposit/:agency/:account', async (req, res) => {
       new: true,
       useFindAndModify: false,
     });
-
     if (!userAccount) {
       throw new Error('Account does not exist.');
     }
@@ -118,14 +117,20 @@ router.get('/balance/:agency/:account', async (req, res) => {
 // ativas para esta agência.
 router.delete('/:agency/:account', async (req, res) => {
   try {
-    const agency = req.params.agency;
-    const account = req.params.account;
+    const { agency, account } = req.params;
 
-    const userAccount = await accountModel.findOneAndDelete({});
+    const filter = {
+      $and: [{ agencia: agency }, { conta: account }],
+    };
 
-    const activeAccounts = await accountModel.find({});
+    const userAccount = await accountModel.findOneAndDelete(filter);
+    if (!userAccount) {
+      throw new Error('Account does not exist.');
+    }
 
-    res.send(activeAccounts);
+    const activeAccounts = await accountModel.find({ agencia: agency });
+
+    res.send({ 'Active accounts': activeAccounts.length });
 
     //logger.info('GET /account');
   } catch (err) {
