@@ -21,8 +21,7 @@ router.get('/', async (_, res) => {
 // exista deverá retornar um erro, caso exista retornar o saldo atual da conta.
 router.patch('/deposit/:agency/:account', async (req, res) => {
   try {
-    const agency = req.params.agency;
-    const account = req.params.account;
+    const { agency, account } = req.params;
     const value = req.body.value;
 
     const filter = {
@@ -59,8 +58,6 @@ router.patch('/deposit/:agency/:account', async (req, res) => {
 // o saque fique negativo.
 router.patch('/withdraw/:agency/:account', async (req, res) => {
   try {
-    // const agency = req.params.agency;
-    // const account = req.params.account;
     const { agency, account } = req.params;
     const value = req.body.value + 1;
 
@@ -92,11 +89,23 @@ router.patch('/withdraw/:agency/:account', async (req, res) => {
 // Caso a conta informada não exista, retornar um erro.
 router.get('/balance/:agency/:account', async (req, res) => {
   try {
-    const agency = req.params.agency;
-    const account = req.params.account;
+    const { agency, account } = req.params;
 
-    const balance = await accountModel.findOne({});
-    res.send(balance);
+    const filter = {
+      $and: [{ agencia: agency }, { conta: account }],
+    };
+
+    const projection = {
+      _id: 0,
+      balance: 1,
+    };
+
+    const balance = await accountModel.findOne(filter, projection);
+    if (!balance) {
+      throw new Error('Account does not exist.');
+    }
+
+    res.send({ Balance: balance });
 
     //logger.info('GET /account');
   } catch (err) {
