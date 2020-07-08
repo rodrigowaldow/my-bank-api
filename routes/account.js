@@ -101,7 +101,7 @@ router.get('/balance/:agency/:account', async (req, res) => {
 
     const balance = await accountModel.findOne(filter, projection);
     if (!balance) {
-      throw new Error('Account does not exist.');
+      throw new Error('Account does not exist');
     }
 
     res.send({ Balance: balance });
@@ -125,17 +125,81 @@ router.delete('/:agency/:account', async (req, res) => {
 
     const userAccount = await accountModel.findOneAndDelete(filter);
     if (!userAccount) {
-      throw new Error('Account does not exist.');
+      throw new Error('Account does not exist');
     }
 
     const activeAccounts = await accountModel.find({ agencia: agency });
 
-    res.send({ 'Active accounts': activeAccounts.length });
+    res.send({
+      success: 'Account was deleted',
+      'Active accounts': activeAccounts.length,
+    });
 
     //logger.info('GET /account');
   } catch (err) {
     res.status(400).send({ error: err.message });
   }
 });
+
+// Crie um endpoint para realizar transferências entre contas. Este endpoint deverá
+// receber como parâmetro o número da “conta” origem, o número da “conta” destino e
+// o valor de transferência. Este endpoint deve validar se as contas são da mesma
+// agência para realizar a transferência, caso seja de agências distintas o valor de tarifa
+// de transferencia (8) deve ser debitado na “conta” origem. O endpoint deverá retornar
+// o saldo da conta origem.
+router.patch('/transfer/:origin/:destiny', async (req, res) => {
+  try {
+    const { origin, destiny } = req.params;
+    const value = req.body.value;
+    let tax = false;
+
+    const originAccount = await accountModel.findOne({ conta: origin });
+    const destinyAccount = await accountModel.findOne({ conta: destiny });
+
+    if (!originAccount || !destinyAccount) {
+      throw new Error(`Account does not exist.`);
+    }
+
+    if (originAccount.agencia !== destinyAccount.agencia) {
+      tax = true;
+      originAccount.balance -= 8;
+    }
+
+    originAccount.balance -= value;
+    if (originAccount.balance < 0) {
+      throw new Error('The account has no value enough.');
+    }
+    destinyAccount.balance += value;
+
+    await originAccount.save();
+    await destinyAccount.save();
+
+    res.send({
+      success: 'Transfer sucess',
+      'Current balance': originAccount.balance,
+      'Has tax': tax,
+    });
+  } catch (err) {
+    res.status(400).send({ error: err.message });
+  }
+});
+
+// Crie um endpoint para consultar a média do saldo dos clientes de determinada
+// agência. O endpoint deverá receber como parametro a “agência” e deverá retornar
+// o balance médio da conta.
+
+// Crie um endpoint para consultar os clientes com o menor saldo em conta. O endpoint
+// devera receber como parâmetro um valor numérico para determinar a quantidade de
+// clientes a serem listados, e o endpoint deverá retornar em ordem crescente pelo
+// saldo a lista dos clientes (agência, conta, saldo).
+
+// Crie um endpoint para consultar os clientes mais ricos do banco. O endpoint deverá
+// receber como parâmetro um valor numérico para determinar a quantidade de clientes
+// a serem listados, e o endpoint deverá retornar em ordem decrescente pelo saldo,
+// crescente pelo nome, a lista dos clientes (agência, conta, nome e saldo).
+
+// Crie um endpoint que irá transferir o cliente com maior saldo em conta de cada
+// agência para a agência private agencia=99. O endpoint deverá retornar a lista dos
+// clientes da agencia private.
 
 export default router;
