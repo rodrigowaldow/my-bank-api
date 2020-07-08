@@ -213,11 +213,57 @@ router.get('/average/:agency/', async (req, res) => {
 // devera receber como parâmetro um valor numérico para determinar a quantidade de
 // clientes a serem listados, e o endpoint deverá retornar em ordem crescente pelo
 // saldo a lista dos clientes (agência, conta, saldo).
+router.get('/lowest-balance/:limit', async (req, res) => {
+  try {
+    const { limit } = req.params;
+
+    const projection = {
+      _id: 0,
+      agencia: 1,
+      conta: 1,
+      balance: 1,
+    };
+
+    const lowestAccounts = await accountModel
+      .find({}, projection, { limit: Number(limit) })
+      .sort({ balance: 1 });
+
+    res.send({ 'Lowest balance accounts': lowestAccounts });
+
+    //logger.info('GET /account');
+  } catch (err) {
+    res.status(400).send({ error: err.message });
+  }
+});
 
 // Crie um endpoint para consultar os clientes mais ricos do banco. O endpoint deverá
 // receber como parâmetro um valor numérico para determinar a quantidade de clientes
 // a serem listados, e o endpoint deverá retornar em ordem decrescente pelo saldo,
 // crescente pelo nome, a lista dos clientes (agência, conta, nome e saldo).
+router.get('/highest-balance/:limit', async (req, res) => {
+  try {
+    const { limit } = req.params;
+
+    const projection = {
+      _id: 0,
+      name: 1,
+      agencia: 1,
+      conta: 1,
+      balance: 1,
+    };
+
+    const highestAccounts = await accountModel
+      .find({}, projection, { limit: Number(limit) })
+      .sort({ balance: -1 })
+      .sort({ name: 1 });
+
+    res.send({ 'Highest balance accounts': highestAccounts });
+
+    //logger.info('GET /account');
+  } catch (err) {
+    res.status(400).send({ error: err.message });
+  }
+});
 
 // Crie um endpoint que irá transferir o cliente com maior saldo em conta de cada
 // agência para a agência private agencia=99. O endpoint deverá retornar a lista dos
