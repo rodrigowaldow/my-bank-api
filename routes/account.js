@@ -244,13 +244,7 @@ router.get('/highest-balance/:limit', async (req, res) => {
   try {
     const { limit } = req.params;
 
-    const projection = {
-      _id: 0,
-      name: 1,
-      agencia: 1,
-      conta: 1,
-      balance: 1,
-    };
+    const projection = { _id: 0 };
 
     const highestAccounts = await accountModel
       .find({}, projection, { limit: Number(limit) })
@@ -268,5 +262,26 @@ router.get('/highest-balance/:limit', async (req, res) => {
 // Crie um endpoint que irá transferir o cliente com maior saldo em conta de cada
 // agência para a agência private agencia=99. O endpoint deverá retornar a lista dos
 // clientes da agencia private.
+router.patch('/private', async (req, res) => {
+  try {
+    const agencies = await accountModel.distinct('agencia');
+
+    for (const agency of agencies) {
+      let highestAccount = await accountModel
+        .find({ agencia: agency })
+        .sort({ balance: -1 })
+        .limit(1);
+
+      highestAccount[0].agencia = 99;
+      highestAccount[0].save();
+    }
+
+    const privates = await accountModel.find({ agencia: 99 }, { _id: 0 });
+
+    res.send({ 'Private accounts': privates });
+  } catch (err) {
+    res.status(400).send({ error: err.message });
+  }
+});
 
 export default router;
