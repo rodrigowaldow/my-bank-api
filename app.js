@@ -2,8 +2,10 @@ import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import winston from 'winston';
+import swaggerUI from 'swagger-ui-express';
 
 import accountRouter from './routes/account.js';
+import swaggerDocument from './documentation.js';
 
 const app = express();
 app.use(cors());
@@ -29,6 +31,7 @@ const myFormat = printf(({ level, message, label, timestamp }) => {
 
 app.use(express.json());
 app.use('/account', accountRouter);
+app.use('/documentation', swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 
 global.logger = winston.createLogger({
   level: 'silly',

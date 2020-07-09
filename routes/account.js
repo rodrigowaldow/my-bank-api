@@ -6,7 +6,7 @@ const router = express.Router();
 // Lista todos accounts
 router.get('/', async (_, res) => {
   try {
-    const userAccounts = await accountModel.find({});
+    const userAccounts = await accountModel.find({}, { _id: 0 });
     res.send(userAccounts);
 
     logger.info('GET /');
