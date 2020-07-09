@@ -4,7 +4,8 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon --experimental-modules ./app.js",
+    "start": "node --experimental-modules ./app.js",
+    "init": "nodemon --experimental-modules ./app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
