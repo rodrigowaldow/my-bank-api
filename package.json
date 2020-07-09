@@ -11,9 +11,15 @@
   "author": "",
   "license": "ISC",
   "type": "module",
+  "nodemonConfig": {
+    "ignore": [
+      "*.log"
+    ]
+  },
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.17.1",
-    "mongoose": "^5.9.21"
+    "mongoose": "^5.9.21",
+    "winston": "^3.3.3"
   }
 }

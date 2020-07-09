@@ -3,12 +3,13 @@ import accountModel from '../models/account.js';
 
 const router = express.Router();
 
+// Lista todos accounts
 router.get('/', async (_, res) => {
   try {
     const userAccounts = await accountModel.find({});
     res.send(userAccounts);
 
-    //logger.info('GET /account');
+    logger.info('GET /');
   } catch (err) {
     res.status(400).send({ error: err.message });
   }
@@ -41,7 +42,7 @@ router.patch('/deposit/:agency/:account', async (req, res) => {
 
     res.send({ 'New balance': userAccount.balance });
 
-    //logger.info('GET /account');
+    logger.info(`PATCH /deposit/:agency/:account - " /${agency}/${account}`);
   } catch (err) {
     res.status(400).send({ error: err.message });
   }
@@ -78,6 +79,8 @@ router.patch('/withdraw/:agency/:account', async (req, res) => {
     await userAccount.save();
 
     res.send({ 'New balance': userAccount.balance });
+
+    logger.info(`PATCH /withdraw/:agency/:account - " /${agency}/${account}`);
   } catch (err) {
     res.status(400).send({ error: err.message });
   }
@@ -106,7 +109,7 @@ router.get('/balance/:agency/:account', async (req, res) => {
 
     res.send({ Balance: balance });
 
-    //logger.info('GET /account');
+    logger.info(`GET /balance/:agency/:account - " /${agency}/${account}`);
   } catch (err) {
     res.status(400).send({ error: err.message });
   }
@@ -135,7 +138,7 @@ router.delete('/:agency/:account', async (req, res) => {
       'Active accounts': activeAccounts.length,
     });
 
-    //logger.info('GET /account');
+    logger.info(`DELETE /:agency/:account - " /${agency}/${account}`);
   } catch (err) {
     res.status(400).send({ error: err.message });
   }
@@ -179,6 +182,8 @@ router.patch('/transfer/:origin/:destiny', async (req, res) => {
       'Current balance': originAccount.balance,
       'Has tax': tax,
     });
+
+    logger.info(`PATCH /transfer/:origin/:destiny - " /${origin}/${destiny}`);
   } catch (err) {
     res.status(400).send({ error: err.message });
   }
@@ -203,7 +208,7 @@ router.get('/average/:agency/', async (req, res) => {
 
     res.send({ 'AVG Balance': avgBalance[0].avg });
 
-    //logger.info('GET /account');
+    logger.info(`GET /average/:agency - " ${agency}`);
   } catch (err) {
     res.status(400).send({ error: err.message });
   }
@@ -230,7 +235,7 @@ router.get('/lowest-balance/:limit', async (req, res) => {
 
     res.send({ 'Lowest balance accounts': lowestAccounts });
 
-    //logger.info('GET /account');
+    logger.info(`GET /lowest-balance/:limit - " ${limit}`);
   } catch (err) {
     res.status(400).send({ error: err.message });
   }
@@ -253,7 +258,7 @@ router.get('/highest-balance/:limit', async (req, res) => {
 
     res.send({ 'Highest balance accounts': highestAccounts });
 
-    //logger.info('GET /account');
+    logger.info(`GET /highest-balance/:limit - " ${limit}`);
   } catch (err) {
     res.status(400).send({ error: err.message });
   }
@@ -279,6 +284,8 @@ router.patch('/private', async (req, res) => {
     const privates = await accountModel.find({ agencia: 99 }, { _id: 0 });
 
     res.send({ 'Private accounts': privates });
+
+    logger.info(`PATCH /private`);
   } catch (err) {
     res.status(400).send({ error: err.message });
   }
