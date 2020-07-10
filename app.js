@@ -7,6 +7,9 @@ import swaggerUI from 'swagger-ui-express';
 import accountRouter from './routes/account.js';
 import swaggerDocument from './documentation.js';
 
+import dotenv from 'dotenv';
+dotenv.config();
+
 const app = express();
 app.use(cors());
 
@@ -18,7 +21,7 @@ const myFormat = printf(({ level, message, label, timestamp }) => {
 (async () => {
   try {
     await mongoose.connect(
-      'mongodb+srv://rodrigowaldow:Rodrigo@01@bootcamp.0h8sh.mongodb.net/MyBank?retryWrites=true&w=majority',
+      `mongodb+srv://${process.env.USERDB}:${process.env.PWDB}@bootcamp.0h8sh.mongodb.net/MyBank?retryWrites=true&w=majority`,
       {
         useNewUrlParser: true,
         useUnifiedTopology: true,
