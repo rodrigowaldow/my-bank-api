@@ -45,6 +45,6 @@ global.logger = winston.createLogger({
   format: combine(label({ label: 'my-bank-api' }), timestamp(), myFormat),
 });
 
-app.listen(3001, () => {
+app.listen(process.env.PORT, () => {
   logger.info('API started!');
 });
